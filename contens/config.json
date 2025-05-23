@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "timestamp": "2025-05-23T07:18:48.776Z",
+  "profile": {
+    "name": "SPMB SMKN 1 SUKABUMI KOTA SUKABUMI",
+    "bio": "INFORMASI SEPUTAR SPMB SMKN 1 SUKABUMI KOTA SUKABUMI\n",
+    "location": "Jakarta, Indonesia",
+    "avatar": "https://i.imgur.com/7GKBawW.png",
+    "links": [
+      {
+        "name": "Infografis SPMB",
+        "url": "https://drive.google.com/file/d/1D75sgzggBWWjIGApDjJxvBGEZ-P6SpJg/view",
+        "icon": "🌐",
+        "class": "website"
+      },
+      {
+        "name": "Link Pendaftaran SPMB 2025",
+        "url": "https://example.com",
+        "icon": "🔗",
+        "class": "website"
+      },
+      {
+        "name": "Instagram",
+        "url": "https://www.instagram.com/smkn1_kotasukabumi/",
+        "icon": "📷",
+        "class": "instagram"
+      }
+    ],
+    "adminKey": "admin_of6vu3ovvo"
+  },
+  "adminKey": "admin_of6vu3ovvo"
+}
