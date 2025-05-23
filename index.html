@@ -47,6 +47,43 @@
         }
     </style>
 </head>
+    <!-- Admin Status -->
+    <div class="admin-status" id="adminStatus">
+        🔐 Admin Mode | <a href="javascript:void(0)" onclick="logoutAdmin()">Logout</a>
+    </div>
+
+    <!-- Admin Login -->
+    <div class="admin-login" id="adminLogin">
+        <div class="admin-login-form">
+            <h2>🔐 Admin Access</h2>
+            <input type="password" id="adminPassword" placeholder="Masukkan password admin" onkeypress="handleAdminKeyPress(event)">
+            <button class="btn" onclick="checkAdminLogin()">🚀 Login</button>
+            <button class="btn btn-secondary" onclick="closeAdminLogin()">❌ Batal</button>
+        </div>
+    </div>
+
+    <!-- Edit Controls -->
+    <div class="edit-controls" id="editControls">
+        <button class="edit-mode" onclick="openEditModal()">✏️ Edit</button>
+        <button class="export-btn" onclick="exportHTML()">📥 Export</button>
+    </div>
+    
+    <div class="container">
+        <div class="profile-section">
+            <div class="avatar" id="avatar">👤</div>
+            <div class="name" id="name">Nama Anda</div>
+            <div class="bio" id="bio">Deskripsi singkat tentang diri Anda atau bisnis Anda</div>
+            <div class="location" id="location">📍 Jakarta, Indonesia</div>
+        </div>
+        
+        <div class="links-section" id="linksContainer">
+            <!-- Links will be populated by JavaScript -->
+        </div>
+        
+        <div class="footer">
+            <p>Dibuat dengan ❤️ oleh <a href="https://instagram.com/dinarsanjaya" target="_blank">@dinarsanjaya</a></p>
+        </div>
+    </div>
 <body>
     <div class="container">
         <div class="profile-section">
