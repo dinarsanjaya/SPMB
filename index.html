@@ -7,38 +7,98 @@
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+    <!-- Admin Status -->
+    <div class="admin-status" id="adminStatus">
+        🔐 Admin Mode | <a href="javascript:void(0)" onclick="logoutAdmin()">Logout</a>
+    </div>
+
+    <!-- Admin Login -->
+    <div class="admin-login" id="adminLogin">
+        <div class="admin-login-form">
+            <h2>🔐 Admin Access</h2>
+            <input type="password" id="adminPassword" placeholder="Masukkan password admin" onkeypress="handleAdminKeyPress(event)">
+            <button class="btn" onclick="checkAdminLogin()">🚀 Login</button>
+            <button class="btn btn-secondary" onclick="closeAdminLogin()">❌ Batal</button>
+        </div>
+    </div>
+
+    <!-- Edit Controls -->
+    <div class="edit-controls" id="editControls">
+        <button class="edit-mode" onclick="openEditModal()">✏️ Edit</button>
+        <button class="export-btn" onclick="exportJSON()">📥 Export</button>
+    </div>
+    
     <div class="container">
-        <!-- Konten sama seperti file export -->
         <div class="profile-section">
-            <div class="avatar">
-                <img src="https://i.imgur.com/7GKBawW.png" alt="Profile">
-            </div>
-            <div class="name">SPMB SMKN 1 SUKABUMI KOTA SUKABUMI</div>
-            <div class="bio">INFORMASI SEPUTAR SPMB SMKN 1 SUKABUMI KOTA SUKABUMI</div>
-            <div class="location">📍 Sukabumi, Indonesia</div>
+            <div class="avatar" id="avatar">👤</div>
+            <div class="name" id="name">Nama Anda</div>
+            <div class="bio" id="bio">Deskripsi singkat tentang diri Anda atau bisnis Anda</div>
+            <div class="location" id="location">📍 Jakarta, Indonesia</div>
         </div>
         
-        <div class="links-section">
-           <a href="https://drive.google.com/file/d/1D75sgzggBWWjIGApDjJxvBGEZ-P6SpJg/view?usp=sharing" class="link-item website" target="_blank">
-                <span class="link-icon">🌐</span>
-                INFOGRAFIS SPMB SMKN 1 SUKABUMI KOTA SUKABUMI
-            </a>
-            <a href="https://spmb.jabarprov.go.id/" class="link-item website" target="_blank">
-                <span class="link-icon">🌐</span>
-                LINK PENDAFTARAN SPMB
-            </a>
-            <a href="https://www.instagram.com/smkn1_kotasukabumi/" class="link-item instagram" target="_blank">
-                <span class="link-icon">📸</span>
-                INSTAGRAM
-            </a>
-            <!-- Link lainnya -->
+        <div class="links-section" id="linksContainer">
+            <!-- Links will be populated by JavaScript -->
         </div>
         
         <div class="footer">
             <p>Dibuat dengan ❤️ oleh <a href="https://instagram.com/dinarsanjaya" target="_blank">@dinarsanjaya</a></p>
         </div>
     </div>
-    
+
+    <!-- Modal Edit -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2>Edit Profil & Links</h2>
+            
+            <div class="form-group">
+                <label>Nama:</label>
+                <input type="text" id="editName" placeholder="Masukkan nama Anda">
+            </div>
+            
+            <div class="form-group">
+                <label>Bio:</label>
+                <textarea id="editBio" rows="3" placeholder="Deskripsi singkat"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Lokasi:</label>
+                <input type="text" id="editLocation" placeholder="Kota, Negara">
+            </div>
+            
+            <div class="form-group">
+                <label>Logo (URL gambar atau emoji):</label>
+                <input type="text" id="editAvatar" placeholder="https://example.com/logo.png atau 👤">
+            </div>
+            
+            <h3>Links</h3>
+            <div id="linkEditor">
+                <!-- Link editors will be populated by JavaScript -->
+            </div>
+            
+            <button class="btn" onclick="addNewLink()">➕ Tambah Link Baru</button>
+            
+            <div class="link-generator">
+                <h3>🔗 Admin Link Generator</h3>
+                <p>
+                    Generate link khusus untuk akses admin. Share link ini hanya kepada admin.
+                </p>
+                <div class="generated-link" id="adminLink">
+                    Loading...
+                </div>
+                <button class="copy-btn" onclick="copyAdminLink()">📋 Copy Link</button>
+                <button class="copy-btn" onclick="generateNewAdminKey()">🔄 Generate New</button>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn" onclick="saveChanges()">💾 Simpan</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()">❌ Batal</button>
+                <button class="btn btn-import" onclick="importConfig()">📁 Import Config</button>
+            </div>
+            
+            <input type="file" id="configFileInput" accept=".json" onchange="handleConfigImport(event)" style="display: none;">
+        </div>
+    </div>
+
     <script src="assets/script.js"></script>
 </body>
 </html>
