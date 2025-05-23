@@ -311,7 +311,23 @@
     </style>
 </head>
 <body>
-    <div class="edit-controls">
+    <!-- Admin Status -->
+    <div class="admin-status" id="adminStatus" style="display: none;">
+        🔐 Admin Mode
+    </div>
+
+    <!-- Admin Login -->
+    <div class="admin-login" id="adminLogin" style="display: none;">
+        <div class="admin-login-form">
+            <h2>🔐 Admin Access</h2>
+            <input type="password" id="adminPassword" placeholder="Masukkan password admin" onkeypress="handleAdminKeyPress(event)">
+            <button class="btn" onclick="checkAdminLogin()">🚀 Login</button>
+            <button class="btn btn-secondary" onclick="closeAdminLogin()">❌ Batal</button>
+        </div>
+    </div>
+
+    <!-- Edit Controls (Hidden by default) -->
+    <div class="edit-controls" id="editControls" style="display: none;">
         <button class="edit-mode" onclick="openEditModal()">✏️ Edit</button>
         <button class="export-btn" onclick="exportHTML()">📥 Export</button>
     </div>
@@ -386,6 +402,18 @@
                 <!-- Link editors will be populated by JavaScript -->
             </div>
             
+            <div class="link-generator">
+                <h3>🔗 Admin Link Generator</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                    Generate link khusus untuk akses admin. Share link ini hanya kepada admin.
+                </p>
+                <div class="generated-link" id="adminLink">
+                    Loading...
+                </div>
+                <button class="copy-btn" onclick="copyAdminLink()">📋 Copy Link</button>
+                <button class="copy-btn" onclick="generateNewAdminKey()" style="background: #6f42c1;">🔄 Generate New</button>
+            </div>
+            
             <div style="margin-top: 30px;">
                 <button class="btn" onclick="saveChanges()">💾 Simpan</button>
                 <button class="btn btn-secondary" onclick="closeEditModal()">❌ Batal</button>
@@ -420,6 +448,7 @@
             document.getElementById('editAvatar').value = profileData.avatar;
             
             populateLinkEditor();
+            updateAdminLinkDisplay();
             document.getElementById('editModal').style.display = 'block';
         }
 
@@ -512,8 +541,91 @@
             }
         }
 
-        // Initialize display
-        updateDisplay();
+        // Admin System
+        let adminKey = 'admin123'; // Default admin key
+        let isAdminMode = false;
+
+        // Check URL for admin access
+        function checkURLForAdmin() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const adminParam = urlParams.get('admin');
+            const keyParam = urlParams.get('key');
+            
+            if (adminParam === 'true' && keyParam === adminKey) {
+                enableAdminMode();
+            } else if (urlParams.get('admin') === 'login') {
+                showAdminLogin();
+            }
+        }
+
+        function showAdminLogin() {
+            document.getElementById('adminLogin').style.display = 'flex';
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminLogin').style.display = 'none';
+        }
+
+        function handleAdminKeyPress(event) {
+            if (event.key === 'Enter') {
+                checkAdminLogin();
+            }
+        }
+
+        function checkAdminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === adminKey) {
+                enableAdminMode();
+                document.getElementById('adminLogin').style.display = 'none';
+            } else {
+                alert('❌ Password salah!');
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        function enableAdminMode() {
+            isAdminMode = true;
+            document.getElementById('editControls').style.display = 'flex';
+            document.getElementById('adminStatus').style.display = 'block';
+            
+            // Update URL without admin params for security
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+
+        function generateAdminLink() {
+            const baseUrl = window.location.origin + window.location.pathname;
+            return `${baseUrl}?admin=true&key=${adminKey}`;
+        }
+
+        function copyAdminLink() {
+            const link = generateAdminLink();
+            navigator.clipboard.writeText(link).then(() => {
+                alert('🎉 Admin link berhasil di-copy!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = link;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('🎉 Admin link berhasil di-copy!');
+            });
+        }
+
+        function generateNewAdminKey() {
+            adminKey = 'admin_' + Math.random().toString(36).substring(2, 15);
+            updateAdminLinkDisplay();
+            alert('🔑 Admin key baru telah di-generate!\nJangan lupa copy link yang baru.');
+        }
+
+        function updateAdminLinkDisplay() {
+            const adminLinkElement = document.getElementById('adminLink');
+            if (adminLinkElement) {
+                adminLinkElement.textContent = generateAdminLink();
+            }
+        }
 
         // Export HTML Function
         function exportHTML() {
