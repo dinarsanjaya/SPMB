@@ -4,101 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPMB SMKN 1 SUKABUMI KOTA SUKABUMI</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+               min-height: 100vh; display: flex; align-items: center; 
+               justify-content: center; padding: 20px; }
+        .container { max-width: 480px; width: 100%; 
+                    background: rgba(255, 255, 255, 0.95); 
+                    backdrop-filter: blur(10px); border-radius: 24px; 
+                    padding: 40px 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); 
+                    text-align: center; }
+        .profile-section { margin-bottom: 40px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; 
+                 border: 4px solid #fff; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); 
+                 margin: 0 auto 20px; background: linear-gradient(135deg, #667eea, #764ba2); 
+                 display: flex; align-items: center; justify-content: center; 
+                 font-size: 48px; color: white; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .name { font-size: 28px; font-weight: 700; color: #333; margin-bottom: 8px; }
+        .bio { font-size: 16px; color: #666; line-height: 1.5; margin-bottom: 10px; }
+        .location { font-size: 14px; color: #888; display: flex; 
+                   align-items: center; justify-content: center; gap: 5px; }
+        .links-section { display: flex; flex-direction: column; gap: 16px; }
+        .link-item { display: block; padding: 18px 24px; background: #fff; 
+                    border: 2px solid #f0f0f0; border-radius: 16px; 
+                    text-decoration: none; color: #333; font-weight: 600; 
+                    font-size: 16px; transition: all 0.3s ease; position: relative; 
+                    overflow: hidden; }
+        .link-item:hover { transform: translateY(-2px); border-color: #667eea; 
+                         box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2); }
+        .link-icon { margin-right: 10px; font-size: 18px; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; 
+                font-size: 12px; color: #888; }
+        .footer a { color: #667eea; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        @media (max-width: 480px) {
+            .container { padding: 30px 20px; }
+            .avatar { width: 100px; height: 100px; font-size: 40px; }
+            .name { font-size: 24px; }
+        }
+    </style>
 </head>
 <body>
-    <!-- Admin Status -->
-    <div class="admin-status" id="adminStatus">
-        🔐 Admin Mode | <a href="javascript:void(0)" onclick="logoutAdmin()">Logout</a>
-    </div>
-
-    <!-- Admin Login -->
-    <div class="admin-login" id="adminLogin">
-        <div class="admin-login-form">
-            <h2>🔐 Admin Access</h2>
-            <input type="password" id="adminPassword" placeholder="Masukkan password admin" onkeypress="handleAdminKeyPress(event)">
-            <button class="btn" onclick="checkAdminLogin()">🚀 Login</button>
-            <button class="btn btn-secondary" onclick="closeAdminLogin()">❌ Batal</button>
-        </div>
-    </div>
-
-    <!-- Edit Controls -->
-    <div class="edit-controls" id="editControls">
-        <button class="edit-mode" onclick="openEditModal()">✏️ Edit</button>
-        <button class="export-btn" onclick="exportHTML()">📥 Export</button>
-    </div>
-    
     <div class="container">
         <div class="profile-section">
-            <div class="avatar" id="avatar">👤</div>
-            <div class="name" id="name">Nama Anda</div>
-            <div class="bio" id="bio">Deskripsi singkat tentang diri Anda atau bisnis Anda</div>
-            <div class="location" id="location">📍 Jakarta, Indonesia</div>
+            <div class="avatar">
+                <img src="https://i.imgur.com/7GKBawW.png" alt="Profile">
+            </div>
+            <div class="name">SPMB SMKN 1 SUKABUMI KOTA SUKABUMI</div>
+            <div class="bio">Informasi seputar SPMB SMKN 1 SUKABUMI KOTA SUKABUMI</div>
+            <div class="location">📍 Sukabumi, Indonesia</div>
         </div>
         
-        <div class="links-section" id="linksContainer">
-            <!-- Links will be populated by JavaScript -->
+        <div class="links-section">
+            
+            <a href="https://drive.google.com/file/d/1D75sgzggBWWjIGApDjJxvBGEZ-P6SpJg/view?usp=sharing" class="link-item website" target="_blank">
+                <span class="link-icon">🌐</span>
+                INFOGRAFIS SPMB SMKN 1 SUKABUMI KOTA SUKABUMI
+            </a>
+            <a href="https://spmb.jabarprov.go.id/" class="link-item website" target="_blank">
+                <span class="link-icon">🌐</span>
+                LINK PENDAFTARAN SPMB
+            </a>
+            <a href="https://www.instagram.com/smkn1_kotasukabumi/" class="link-item instagram" target="_blank">
+                <span class="link-icon">📸</span>
+                INSTAGRAM SMKN 1 SUKABUMI KOTA SUKABUMI
+            </a>
         </div>
         
         <div class="footer">
             <p>Dibuat dengan ❤️ oleh <a href="https://instagram.com/dinarsanjaya" target="_blank">@dinarsanjaya</a></p>
         </div>
     </div>
-
-    <!-- Modal Edit -->
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <h2>Edit Profil & Links</h2>
-            
-            <div class="form-group">
-                <label>Nama:</label>
-                <input type="text" id="editName" placeholder="Masukkan nama Anda">
-            </div>
-            
-            <div class="form-group">
-                <label>Bio:</label>
-                <textarea id="editBio" rows="3" placeholder="Deskripsi singkat"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>Lokasi:</label>
-                <input type="text" id="editLocation" placeholder="Kota, Negara">
-            </div>
-            
-            <div class="form-group">
-                <label>Logo (URL gambar atau emoji):</label>
-                <input type="text" id="editAvatar" placeholder="https://example.com/logo.png atau 👤">
-            </div>
-            
-            <h3>Links</h3>
-            <div id="linkEditor">
-                <!-- Link editors will be populated by JavaScript -->
-            </div>
-            
-            <button class="btn" onclick="addNewLink()">➕ Tambah Link Baru</button>
-            
-            <div class="link-generator">
-                <h3>🔗 Admin Link Generator</h3>
-                <p>
-                    Generate link khusus untuk akses admin. Share link ini hanya kepada admin.
-                </p>
-                <div class="generated-link" id="adminLink">
-                    Loading...
-                </div>
-                <button class="copy-btn" onclick="copyAdminLink()">📋 Copy Link</button>
-                <button class="copy-btn" onclick="generateNewAdminKey()">🔄 Generate New</button>
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn" onclick="saveChanges()">💾 Simpan</button>
-                <button class="btn btn-secondary" onclick="closeEditModal()">❌ Batal</button>
-                <button class="btn btn-import" onclick="importConfig()">📁 Import Config</button>
-            </div>
-            
-            <input type="file" id="configFileInput" accept=".json" onchange="handleConfigImport(event)" style="display: none;">
-        </div>
-    </div>
-
-    <script src="assets/script.js"></script>
 </body>
 </html>
