@@ -18,6 +18,15 @@ let profileData = {
 let adminKey = 'admin_' + Math.random().toString(36).substring(2, 15);
 let isAdminMode = false;
 
+// GitHub Integration
+let githubConfig = {
+    owner: '', // GitHub username
+    repo: '', // Repository name
+    branch: 'main', // Branch name
+    token: '', // GitHub personal access token
+    filePath: 'config.json' // Path to config file in repo
+};
+
 // Initialize on page load
 window.onload = function() {
     // Load saved data from localStorage if available
@@ -46,6 +55,9 @@ window.onload = function() {
     if (localStorage.getItem('adminMode') === 'true') {
         enableAdminMode();
     }
+    
+    // Load GitHub config from localStorage
+    loadGitHubConfig();
 };
 
 // Update the display with current data
@@ -384,4 +396,187 @@ function handleConfigImport(event) {
         alert('❌ Gagal membaca file!');
     };
     reader.readAsText(file);
+}
+
+// Load GitHub config from localStorage
+function loadGitHubConfig() {
+    const savedConfig = localStorage.getItem('githubConfig');
+    if (savedConfig) {
+        try {
+            githubConfig = JSON.parse(savedConfig);
+        } catch (e) {
+            console.error("Error loading GitHub config:", e);
+        }
+    }
+}
+
+// Save GitHub config to localStorage
+function saveGitHubConfig() {
+    localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
+}
+
+// Update GitHub config
+function updateGitHubConfig(config) {
+    githubConfig = { ...githubConfig, ...config };
+    saveGitHubConfig();
+}
+
+// Push data to GitHub
+async function pushToGitHub() {
+    if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) {
+        alert('❌ Konfigurasi GitHub belum lengkap!');
+        return;
+    }
+
+    try {
+        const configData = {
+            version: "1.0",
+            timestamp: new Date().toISOString(),
+            profile: profileData,
+            adminKey: adminKey
+        };
+
+        const content = JSON.stringify(configData, null, 2);
+        const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+        // Get current file SHA
+        const getFileResponse = await fetch(
+            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}?ref=${githubConfig.branch}`,
+            {
+                headers: {
+                    'Authorization': `token ${githubConfig.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }
+        );
+
+        let sha;
+        if (getFileResponse.ok) {
+            const fileData = await getFileResponse.json();
+            sha = fileData.sha;
+        }
+
+        // Create or update file
+        const response = await fetch(
+            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubConfig.token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({
+                    message: `Update config: ${new Date().toISOString()}`,
+                    content: encodedContent,
+                    branch: githubConfig.branch,
+                    sha: sha
+                })
+            }
+        );
+
+        if (response.ok) {
+            alert('✅ Data berhasil di-push ke GitHub!');
+        } else {
+            throw new Error('Failed to push to GitHub');
+        }
+    } catch (error) {
+        console.error("GitHub push error:", error);
+        alert(`❌ Gagal push ke GitHub: ${error.message}`);
+    }
+}
+
+// Pull data from GitHub
+async function pullFromGitHub() {
+    if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) {
+        alert('❌ Konfigurasi GitHub belum lengkap!');
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}?ref=${githubConfig.branch}`,
+            {
+                headers: {
+                    'Authorization': `token ${githubConfig.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch from GitHub');
+        }
+
+        const data = await response.json();
+        const content = decodeURIComponent(escape(atob(data.content)));
+        const configData = JSON.parse(content);
+
+        if (configData.profile) {
+            profileData = configData.profile;
+            if (configData.adminKey) {
+                adminKey = configData.adminKey;
+            }
+            updateDisplay();
+            alert('✅ Data berhasil di-pull dari GitHub!');
+        } else {
+            alert('❌ Format file tidak valid!');
+        }
+    } catch (error) {
+        console.error("GitHub pull error:", error);
+        alert(`❌ Gagal pull dari GitHub: ${error.message}`);
+    }
+}
+
+// Add GitHub config modal
+function showGitHubConfig() {
+    const modal = document.getElementById('editModal');
+    if (!modal) return;
+
+    const githubConfigDiv = document.createElement('div');
+    githubConfigDiv.className = 'github-config';
+    githubConfigDiv.innerHTML = `
+        <h3>⚙️ GitHub Configuration</h3>
+        <div class="form-group">
+            <label>GitHub Username:</label>
+            <input type="text" id="githubOwner" value="${githubConfig.owner}" placeholder="username">
+        </div>
+        <div class="form-group">
+            <label>Repository Name:</label>
+            <input type="text" id="githubRepo" value="${githubConfig.repo}" placeholder="repo-name">
+        </div>
+        <div class="form-group">
+            <label>Branch:</label>
+            <input type="text" id="githubBranch" value="${githubConfig.branch}" placeholder="main">
+        </div>
+        <div class="form-group">
+            <label>Personal Access Token:</label>
+            <input type="password" id="githubToken" value="${githubConfig.token}" placeholder="ghp_...">
+        </div>
+        <div class="form-group">
+            <label>Config File Path:</label>
+            <input type="text" id="githubFilePath" value="${githubConfig.filePath}" placeholder="config.json">
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="saveGitHubSettings()">💾 Save Settings</button>
+            <button class="btn" onclick="pushToGitHub()">📤 Push to GitHub</button>
+            <button class="btn" onclick="pullFromGitHub()">📥 Pull from GitHub</button>
+        </div>
+    `;
+
+    // Insert before modal actions
+    const modalActions = modal.querySelector('.modal-actions');
+    modal.insertBefore(githubConfigDiv, modalActions);
+}
+
+// Save GitHub settings
+function saveGitHubSettings() {
+    updateGitHubConfig({
+        owner: document.getElementById('githubOwner').value,
+        repo: document.getElementById('githubRepo').value,
+        branch: document.getElementById('githubBranch').value,
+        token: document.getElementById('githubToken').value,
+        filePath: document.getElementById('githubFilePath').value
+    });
+    alert('✅ GitHub settings saved!');
 }
