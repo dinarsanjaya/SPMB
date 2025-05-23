@@ -18,15 +18,6 @@ let profileData = {
 let adminKey = 'admin_' + Math.random().toString(36).substring(2, 15);
 let isAdminMode = false;
 
-// GitHub Integration
-let githubConfig = {
-    owner: 'dinarsanjaya',
-    repo: 'SPMB',
-    branch: 'main',
-    token: 'ghp_11AIKF4RY0khxvuG3SkYTQ_8DFAMSeRKifsqx97BUburya6R46YN5IoYkNvxdQLcErFUXQGYX7uQqjAJN9',
-    filePath: 'config.json'
-};
-
 // Initialize on page load
 window.onload = function() {
     // Load saved data from localStorage if available
@@ -56,8 +47,8 @@ window.onload = function() {
         enableAdminMode();
     }
     
-    // Load GitHub config from localStorage
-    loadGitHubConfig();
+    // Log admin key for development
+    console.log("Admin Key:", adminKey);
 };
 
 // Update the display with current data
@@ -319,7 +310,118 @@ function updateAdminLinkDisplay() {
 }
 
 // Export Functions
-function exportJSON() {
+function exportHTML() {
+    // CSS fallback if style tag not found
+    const fallbackCSS = `
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+               min-height: 100vh; display: flex; align-items: center; 
+               justify-content: center; padding: 20px; }
+        .container { max-width: 480px; width: 100%; 
+                    background: rgba(255, 255, 255, 0.95); 
+                    backdrop-filter: blur(10px); border-radius: 24px; 
+                    padding: 40px 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); 
+                    text-align: center; }
+        .profile-section { margin-bottom: 40px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; 
+                 border: 4px solid #fff; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); 
+                 margin: 0 auto 20px; background: linear-gradient(135deg, #667eea, #764ba2); 
+                 display: flex; align-items: center; justify-content: center; 
+                 font-size: 48px; color: white; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .name { font-size: 28px; font-weight: 700; color: #333; margin-bottom: 8px; }
+        .bio { font-size: 16px; color: #666; line-height: 1.5; margin-bottom: 10px; }
+        .location { font-size: 14px; color: #888; display: flex; 
+                   align-items: center; justify-content: center; gap: 5px; }
+        .links-section { display: flex; flex-direction: column; gap: 16px; }
+        .link-item { display: block; padding: 18px 24px; background: #fff; 
+                    border: 2px solid #f0f0f0; border-radius: 16px; 
+                    text-decoration: none; color: #333; font-weight: 600; 
+                    font-size: 16px; transition: all 0.3s ease; position: relative; 
+                    overflow: hidden; }
+        .link-item:hover { transform: translateY(-2px); border-color: #667eea; 
+                         box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2); }
+        .link-icon { margin-right: 10px; font-size: 18px; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; 
+                font-size: 12px; color: #888; }
+        .footer a { color: #667eea; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        @media (max-width: 480px) {
+            .container { padding: 30px 20px; }
+            .avatar { width: 100px; height: 100px; font-size: 40px; }
+            .name { font-size: 24px; }
+        }
+    `;
+
+    // Get styles from style tag or use fallback
+    let pageStyles = fallbackCSS;
+    try {
+        const styleElement = document.querySelector('style');
+        if (styleElement && styleElement.innerHTML) {
+            pageStyles = styleElement.innerHTML;
+        }
+    } catch (e) {
+        console.error("Error getting styles:", e);
+    }
+
+    // Create HTML template
+    const htmlTemplate = `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${profileData.name || "My Links"}</title>
+    <style>${pageStyles}</style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-section">
+            <div class="avatar">
+                ${profileData.avatar?.startsWith('http') || profileData.avatar?.startsWith('data:') 
+                    ? `<img src="${profileData.avatar}" alt="Profile">` 
+                    : profileData.avatar || "👤"}
+            </div>
+            <div class="name">${profileData.name || "Nama Anda"}</div>
+            <div class="bio">${profileData.bio || "Deskripsi singkat"}</div>
+            <div class="location">📍 ${profileData.location || "Lokasi"}</div>
+        </div>
+        
+        <div class="links-section">
+            ${(profileData.links || []).map(link => `
+            <a href="${link.url || "#"}" class="link-item ${link.class || ""}" target="_blank">
+                <span class="link-icon">${link.icon || "🔗"}</span>
+                ${link.name || "Link"}
+            </a>`).join('')}
+        </div>
+        
+        <div class="footer">
+            <p>Dibuat dengan ❤️ oleh <a href="https://instagram.com/dinarsanjaya" target="_blank">@dinarsanjaya</a></p>
+        </div>
+    </div>
+</body>
+</html>`;
+
+    // Download file HTML
+    try {
+        const blob = new Blob([htmlTemplate], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${(profileData.name || "linktree").replace(/\s+/g, '_').toLowerCase()}_export.html`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+    } catch (error) {
+        console.error("Export error:", error);
+        alert(`❌ Gagal export: ${error.message}`);
+    }
+}
+
+function exportConfig() {
     const configData = {
         version: "1.0",
         timestamp: new Date().toISOString(),
@@ -340,8 +442,8 @@ function exportJSON() {
             URL.revokeObjectURL(url);
         }, 100);
     } catch (error) {
-        console.error("Export error:", error);
-        alert(`❌ Gagal export: ${error.message}`);
+        console.error("Export config error:", error);
+        alert(`❌ Gagal export config: ${error.message}`);
     }
 }
 
@@ -363,7 +465,6 @@ function handleConfigImport(event) {
         try {
             const configData = JSON.parse(e.target.result);
             if (configData.profile) {
-                // Update profile data
                 profileData = configData.profile;
                 
                 // Update admin key if included
@@ -371,17 +472,6 @@ function handleConfigImport(event) {
                     adminKey = configData.adminKey;
                 }
                 
-                // Update form fields in modal if it's open
-                const modal = document.getElementById('editModal');
-                if (modal && modal.style.display === 'block') {
-                    document.getElementById('editName').value = profileData.name || "";
-                    document.getElementById('editBio').value = profileData.bio || "";
-                    document.getElementById('editLocation').value = profileData.location || "";
-                    document.getElementById('editAvatar').value = profileData.avatar || "";
-                    populateLinkEditor();
-                }
-                
-                // Update display
                 updateDisplay();
                 alert('✅ Konfigurasi berhasil di-import!');
             } else {
@@ -396,294 +486,4 @@ function handleConfigImport(event) {
         alert('❌ Gagal membaca file!');
     };
     reader.readAsText(file);
-}
-
-// Load GitHub config from localStorage
-function loadGitHubConfig() {
-    const savedConfig = localStorage.getItem('githubConfig');
-    if (savedConfig) {
-        try {
-            githubConfig = JSON.parse(savedConfig);
-        } catch (e) {
-            console.error("Error loading GitHub config:", e);
-        }
-    }
-}
-
-// Save GitHub config to localStorage
-function saveGitHubConfig() {
-    localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
-}
-
-// Update GitHub config
-function updateGitHubConfig(config) {
-    githubConfig = { ...githubConfig, ...config };
-    saveGitHubConfig();
-}
-
-// Push data to GitHub
-async function pushToGitHub() {
-    if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) {
-        alert('❌ Konfigurasi GitHub belum lengkap!');
-        return;
-    }
-
-    try {
-        const configData = {
-            version: "1.0",
-            timestamp: new Date().toISOString(),
-            profile: profileData,
-            adminKey: adminKey
-        };
-
-        const content = JSON.stringify(configData, null, 2);
-        const encodedContent = btoa(unescape(encodeURIComponent(content)));
-
-        // Get current file SHA
-        const getFileResponse = await fetch(
-            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}?ref=${githubConfig.branch}`,
-            {
-                headers: {
-                    'Authorization': `token ${githubConfig.token}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            }
-        );
-
-        let sha;
-        if (getFileResponse.ok) {
-            const fileData = await getFileResponse.json();
-            sha = fileData.sha;
-        }
-
-        // Create or update file
-        const response = await fetch(
-            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}`,
-            {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${githubConfig.token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/vnd.github.v3+json'
-                },
-                body: JSON.stringify({
-                    message: `Update config: ${new Date().toISOString()}`,
-                    content: encodedContent,
-                    branch: githubConfig.branch,
-                    sha: sha
-                })
-            }
-        );
-
-        if (response.ok) {
-            alert('✅ Data berhasil di-push ke GitHub!');
-            // Refresh data setelah push
-            await pullFromGitHub();
-        } else {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to push to GitHub');
-        }
-    } catch (error) {
-        console.error("GitHub push error:", error);
-        alert(`❌ Gagal push ke GitHub: ${error.message}`);
-    }
-}
-
-// Pull data from GitHub
-async function pullFromGitHub() {
-    if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) {
-        alert('❌ Konfigurasi GitHub belum lengkap!');
-        return;
-    }
-
-    try {
-        const response = await fetch(
-            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}?ref=${githubConfig.branch}`,
-            {
-                headers: {
-                    'Authorization': `token ${githubConfig.token}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            }
-        );
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to fetch from GitHub');
-        }
-
-        const data = await response.json();
-        const content = decodeURIComponent(escape(atob(data.content)));
-        const configData = JSON.parse(content);
-
-        if (configData.profile) {
-            // Update profile data
-            profileData = configData.profile;
-            if (configData.adminKey) {
-                adminKey = configData.adminKey;
-            }
-            
-            // Update display
-            updateDisplay();
-            
-            // Update form fields if modal is open
-            const modal = document.getElementById('editModal');
-            if (modal && modal.style.display === 'block') {
-                document.getElementById('editName').value = profileData.name || "";
-                document.getElementById('editBio').value = profileData.bio || "";
-                document.getElementById('editLocation').value = profileData.location || "";
-                document.getElementById('editAvatar').value = profileData.avatar || "";
-                populateLinkEditor();
-            }
-            
-            alert('✅ Data berhasil di-pull dari GitHub!');
-        } else {
-            alert('❌ Format file tidak valid!');
-        }
-    } catch (error) {
-        console.error("GitHub pull error:", error);
-        alert(`❌ Gagal pull dari GitHub: ${error.message}`);
-    }
-}
-
-// Upload folder to GitHub
-async function uploadFolderToGitHub() {
-    if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) {
-        alert('❌ Konfigurasi GitHub belum lengkap!');
-        return;
-    }
-
-    try {
-        // Buat folder contents jika belum ada
-        const createFolderResponse = await fetch(
-            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/contents`,
-            {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${githubConfig.token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/vnd.github.v3+json'
-                },
-                body: JSON.stringify({
-                    message: 'Create contents folder',
-                    content: btoa(''), // Empty file
-                    branch: githubConfig.branch
-                })
-            }
-        );
-
-        // Upload index.html
-        const indexHtmlContent = await fetch('index.html').then(res => res.text());
-        await fetch(
-            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/contents/index.html`,
-            {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${githubConfig.token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/vnd.github.v3+json'
-                },
-                body: JSON.stringify({
-                    message: 'Upload index.html',
-                    content: btoa(indexHtmlContent),
-                    branch: githubConfig.branch
-                })
-            }
-        );
-
-        // Upload assets folder
-        const assetsFiles = ['script.js', 'style.css'];
-        for (const file of assetsFiles) {
-            const fileContent = await fetch(`assets/${file}`).then(res => res.text());
-            await fetch(
-                `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/contents/assets/${file}`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/vnd.github.v3+json'
-                    },
-                    body: JSON.stringify({
-                        message: `Upload ${file}`,
-                        content: btoa(fileContent),
-                        branch: githubConfig.branch
-                    })
-                }
-            );
-        }
-
-        alert('✅ Folder berhasil diupload ke GitHub!');
-    } catch (error) {
-        console.error("GitHub upload error:", error);
-        alert(`❌ Gagal upload folder: ${error.message}`);
-    }
-}
-
-// Add upload folder button to GitHub config
-function showGitHubConfig() {
-    const modal = document.getElementById('editModal');
-    if (!modal) return;
-
-    // Remove existing GitHub config if any
-    const existingConfig = modal.querySelector('.github-config');
-    if (existingConfig) {
-        existingConfig.remove();
-    }
-
-    const githubConfigDiv = document.createElement('div');
-    githubConfigDiv.className = 'github-config';
-    githubConfigDiv.innerHTML = `
-        <h3>⚙️ GitHub Configuration</h3>
-        <div class="form-group">
-            <label>GitHub Username:</label>
-            <input type="text" id="githubOwner" value="${githubConfig.owner}" placeholder="username">
-        </div>
-        <div class="form-group">
-            <label>Repository Name:</label>
-            <input type="text" id="githubRepo" value="${githubConfig.repo}" placeholder="repo-name">
-        </div>
-        <div class="form-group">
-            <label>Branch:</label>
-            <input type="text" id="githubBranch" value="${githubConfig.branch}" placeholder="main">
-        </div>
-        <div class="form-group">
-            <label>Personal Access Token:</label>
-            <input type="password" id="githubToken" value="${githubConfig.token}" placeholder="ghp_...">
-        </div>
-        <div class="form-group">
-            <label>Config File Path:</label>
-            <input type="text" id="githubFilePath" value="${githubConfig.filePath}" placeholder="config.json">
-        </div>
-        <div class="github-actions">
-            <button class="btn" onclick="saveGitHubSettings()">💾 Save Settings</button>
-            <button class="btn" onclick="pushToGitHub()">📤 Push Config</button>
-            <button class="btn" onclick="pullFromGitHub()">📥 Pull Config</button>
-            <button class="btn" onclick="uploadFolderToGitHub()">📁 Upload Folder</button>
-        </div>
-    `;
-
-    // Find the modal content and link editor
-    const modalContent = modal.querySelector('.modal-content');
-    const linkEditor = modalContent.querySelector('#linkEditor');
-    
-    if (linkEditor) {
-        // Insert after link editor
-        linkEditor.parentNode.insertBefore(githubConfigDiv, linkEditor.nextSibling);
-    } else {
-        // Fallback: append to modal content
-        modalContent.appendChild(githubConfigDiv);
-    }
-}
-
-// Save GitHub settings
-function saveGitHubSettings() {
-    updateGitHubConfig({
-        owner: document.getElementById('githubOwner').value,
-        repo: document.getElementById('githubRepo').value,
-        branch: document.getElementById('githubBranch').value,
-        token: document.getElementById('githubToken').value,
-        filePath: document.getElementById('githubFilePath').value
-    });
-    alert('✅ GitHub settings saved!');
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPMB SMKN 1 SUKABUMI KOTA SUKABUMI</title>
+    <title>My Links</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -25,7 +25,7 @@
     <!-- Edit Controls -->
     <div class="edit-controls" id="editControls">
         <button class="edit-mode" onclick="openEditModal()">✏️ Edit</button>
-        <button class="export-btn" onclick="exportJSON()">📥 Export</button>
+        <button class="export-btn" onclick="exportHTML()">📥 Export</button>
     </div>
     
     <div class="container">
@@ -93,7 +93,6 @@
                 <button class="btn" onclick="saveChanges()">💾 Simpan</button>
                 <button class="btn btn-secondary" onclick="closeEditModal()">❌ Batal</button>
                 <button class="btn btn-import" onclick="importConfig()">📁 Import Config</button>
-                <button class="btn btn-github" onclick="showGitHubConfig()">🐙 GitHub Sync</button>
             </div>
             
             <input type="file" id="configFileInput" accept=".json" onchange="handleConfigImport(event)" style="display: none;">
