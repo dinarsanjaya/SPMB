@@ -20,10 +20,10 @@ let isAdminMode = false;
 
 // GitHub Integration
 let githubConfig = {
-    owner: '', // GitHub username
-    repo: '', // Repository name
+    owner: 'dinarsanjaya', // GitHub username
+    repo: 'https://github.com/dinarsanjaya/SPMB', // Repository name
     branch: 'main', // Branch name
-    token: '', // GitHub personal access token
+    token: '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', // GitHub personal access token
     filePath: 'config.json' // Path to config file in repo
 };
 
