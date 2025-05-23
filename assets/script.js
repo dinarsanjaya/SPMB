@@ -20,11 +20,11 @@ let isAdminMode = false;
 
 // GitHub Integration
 let githubConfig = {
-    owner: 'dinarsanjaya', // GitHub username
-    repo: 'https://github.com/dinarsanjaya/SPMB', // Repository name
-    branch: 'main', // Branch name
-    token: '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', // GitHub personal access token
-    filePath: 'config.json' // Path to config file in repo
+    owner: 'dinarsanjaya',
+    repo: 'SPMB', // Hanya nama repo, bukan URL lengkap
+    branch: 'main',
+    token: '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',
+    filePath: 'config.json'
 };
 
 // Initialize on page load
@@ -444,7 +444,7 @@ async function pushToGitHub() {
             `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}?ref=${githubConfig.branch}`,
             {
                 headers: {
-                    'Authorization': `token ${githubConfig.token}`,
+                    'Authorization': `Bearer ${githubConfig.token}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             }
@@ -462,7 +462,7 @@ async function pushToGitHub() {
             {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${githubConfig.token}`,
+                    'Authorization': `Bearer ${githubConfig.token}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/vnd.github.v3+json'
                 },
@@ -477,8 +477,11 @@ async function pushToGitHub() {
 
         if (response.ok) {
             alert('✅ Data berhasil di-push ke GitHub!');
+            // Refresh data setelah push
+            await pullFromGitHub();
         } else {
-            throw new Error('Failed to push to GitHub');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to push to GitHub');
         }
     } catch (error) {
         console.error("GitHub push error:", error);
@@ -498,14 +501,15 @@ async function pullFromGitHub() {
             `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}?ref=${githubConfig.branch}`,
             {
                 headers: {
-                    'Authorization': `token ${githubConfig.token}`,
+                    'Authorization': `Bearer ${githubConfig.token}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             }
         );
 
         if (!response.ok) {
-            throw new Error('Failed to fetch from GitHub');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to fetch from GitHub');
         }
 
         const data = await response.json();
@@ -513,11 +517,25 @@ async function pullFromGitHub() {
         const configData = JSON.parse(content);
 
         if (configData.profile) {
+            // Update profile data
             profileData = configData.profile;
             if (configData.adminKey) {
                 adminKey = configData.adminKey;
             }
+            
+            // Update display
             updateDisplay();
+            
+            // Update form fields if modal is open
+            const modal = document.getElementById('editModal');
+            if (modal && modal.style.display === 'block') {
+                document.getElementById('editName').value = profileData.name || "";
+                document.getElementById('editBio').value = profileData.bio || "";
+                document.getElementById('editLocation').value = profileData.location || "";
+                document.getElementById('editAvatar').value = profileData.avatar || "";
+                populateLinkEditor();
+            }
+            
             alert('✅ Data berhasil di-pull dari GitHub!');
         } else {
             alert('❌ Format file tidak valid!');
