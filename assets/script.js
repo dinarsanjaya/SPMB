@@ -46,9 +46,6 @@ window.onload = function() {
     if (localStorage.getItem('adminMode') === 'true') {
         enableAdminMode();
     }
-    
-    // Log admin key for development
-    console.log("Admin Key:", adminKey);
 };
 
 // Update the display with current data
@@ -310,118 +307,7 @@ function updateAdminLinkDisplay() {
 }
 
 // Export Functions
-function exportHTML() {
-    // CSS fallback if style tag not found
-    const fallbackCSS = `
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-               min-height: 100vh; display: flex; align-items: center; 
-               justify-content: center; padding: 20px; }
-        .container { max-width: 480px; width: 100%; 
-                    background: rgba(255, 255, 255, 0.95); 
-                    backdrop-filter: blur(10px); border-radius: 24px; 
-                    padding: 40px 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); 
-                    text-align: center; }
-        .profile-section { margin-bottom: 40px; }
-        .avatar { width: 120px; height: 120px; border-radius: 50%; 
-                 border: 4px solid #fff; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); 
-                 margin: 0 auto 20px; background: linear-gradient(135deg, #667eea, #764ba2); 
-                 display: flex; align-items: center; justify-content: center; 
-                 font-size: 48px; color: white; overflow: hidden; }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-        .name { font-size: 28px; font-weight: 700; color: #333; margin-bottom: 8px; }
-        .bio { font-size: 16px; color: #666; line-height: 1.5; margin-bottom: 10px; }
-        .location { font-size: 14px; color: #888; display: flex; 
-                   align-items: center; justify-content: center; gap: 5px; }
-        .links-section { display: flex; flex-direction: column; gap: 16px; }
-        .link-item { display: block; padding: 18px 24px; background: #fff; 
-                    border: 2px solid #f0f0f0; border-radius: 16px; 
-                    text-decoration: none; color: #333; font-weight: 600; 
-                    font-size: 16px; transition: all 0.3s ease; position: relative; 
-                    overflow: hidden; }
-        .link-item:hover { transform: translateY(-2px); border-color: #667eea; 
-                         box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2); }
-        .link-icon { margin-right: 10px; font-size: 18px; }
-        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; 
-                font-size: 12px; color: #888; }
-        .footer a { color: #667eea; text-decoration: none; }
-        .footer a:hover { text-decoration: underline; }
-        @media (max-width: 480px) {
-            .container { padding: 30px 20px; }
-            .avatar { width: 100px; height: 100px; font-size: 40px; }
-            .name { font-size: 24px; }
-        }
-    `;
-
-    // Get styles from style tag or use fallback
-    let pageStyles = fallbackCSS;
-    try {
-        const styleElement = document.querySelector('style');
-        if (styleElement && styleElement.innerHTML) {
-            pageStyles = styleElement.innerHTML;
-        }
-    } catch (e) {
-        console.error("Error getting styles:", e);
-    }
-
-    // Create HTML template
-    const htmlTemplate = `<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${profileData.name || "My Links"}</title>
-    <style>${pageStyles}</style>
-</head>
-<body>
-    <div class="container">
-        <div class="profile-section">
-            <div class="avatar">
-                ${profileData.avatar?.startsWith('http') || profileData.avatar?.startsWith('data:') 
-                    ? `<img src="${profileData.avatar}" alt="Profile">` 
-                    : profileData.avatar || "👤"}
-            </div>
-            <div class="name">${profileData.name || "Nama Anda"}</div>
-            <div class="bio">${profileData.bio || "Deskripsi singkat"}</div>
-            <div class="location">📍 ${profileData.location || "Lokasi"}</div>
-        </div>
-        
-        <div class="links-section">
-            ${(profileData.links || []).map(link => `
-            <a href="${link.url || "#"}" class="link-item ${link.class || ""}" target="_blank">
-                <span class="link-icon">${link.icon || "🔗"}</span>
-                ${link.name || "Link"}
-            </a>`).join('')}
-        </div>
-        
-        <div class="footer">
-            <p>Dibuat dengan ❤️ oleh <a href="https://instagram.com/dinarsanjaya" target="_blank">@dinarsanjaya</a></p>
-        </div>
-    </div>
-</body>
-</html>`;
-
-    // Download file HTML
-    try {
-        const blob = new Blob([htmlTemplate], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${(profileData.name || "linktree").replace(/\s+/g, '_').toLowerCase()}_export.html`;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }, 100);
-    } catch (error) {
-        console.error("Export error:", error);
-        alert(`❌ Gagal export: ${error.message}`);
-    }
-}
-
-function exportConfig() {
+function exportJSON() {
     const configData = {
         version: "1.0",
         timestamp: new Date().toISOString(),
@@ -442,8 +328,8 @@ function exportConfig() {
             URL.revokeObjectURL(url);
         }, 100);
     } catch (error) {
-        console.error("Export config error:", error);
-        alert(`❌ Gagal export config: ${error.message}`);
+        console.error("Export error:", error);
+        alert(`❌ Gagal export: ${error.message}`);
     }
 }
 
@@ -465,6 +351,7 @@ function handleConfigImport(event) {
         try {
             const configData = JSON.parse(e.target.result);
             if (configData.profile) {
+                // Update profile data
                 profileData = configData.profile;
                 
                 // Update admin key if included
@@ -472,6 +359,17 @@ function handleConfigImport(event) {
                     adminKey = configData.adminKey;
                 }
                 
+                // Update form fields in modal if it's open
+                const modal = document.getElementById('editModal');
+                if (modal && modal.style.display === 'block') {
+                    document.getElementById('editName').value = profileData.name || "";
+                    document.getElementById('editBio').value = profileData.bio || "";
+                    document.getElementById('editLocation').value = profileData.location || "";
+                    document.getElementById('editAvatar').value = profileData.avatar || "";
+                    populateLinkEditor();
+                }
+                
+                // Update display
                 updateDisplay();
                 alert('✅ Konfigurasi berhasil di-import!');
             } else {
