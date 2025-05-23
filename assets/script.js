@@ -533,6 +533,12 @@ function showGitHubConfig() {
     const modal = document.getElementById('editModal');
     if (!modal) return;
 
+    // Remove existing GitHub config if any
+    const existingConfig = modal.querySelector('.github-config');
+    if (existingConfig) {
+        existingConfig.remove();
+    }
+
     const githubConfigDiv = document.createElement('div');
     githubConfigDiv.className = 'github-config';
     githubConfigDiv.innerHTML = `
@@ -557,16 +563,24 @@ function showGitHubConfig() {
             <label>Config File Path:</label>
             <input type="text" id="githubFilePath" value="${githubConfig.filePath}" placeholder="config.json">
         </div>
-        <div class="modal-actions">
+        <div class="github-actions">
             <button class="btn" onclick="saveGitHubSettings()">💾 Save Settings</button>
             <button class="btn" onclick="pushToGitHub()">📤 Push to GitHub</button>
             <button class="btn" onclick="pullFromGitHub()">📥 Pull from GitHub</button>
         </div>
     `;
 
-    // Insert before modal actions
-    const modalActions = modal.querySelector('.modal-actions');
-    modal.insertBefore(githubConfigDiv, modalActions);
+    // Find the modal content and link editor
+    const modalContent = modal.querySelector('.modal-content');
+    const linkEditor = modalContent.querySelector('#linkEditor');
+    
+    if (linkEditor) {
+        // Insert after link editor
+        linkEditor.parentNode.insertBefore(githubConfigDiv, linkEditor.nextSibling);
+    } else {
+        // Fallback: append to modal content
+        modalContent.appendChild(githubConfigDiv);
+    }
 }
 
 // Save GitHub settings
