@@ -21,9 +21,9 @@ let isAdminMode = false;
 // GitHub Integration
 let githubConfig = {
     owner: 'dinarsanjaya',
-    repo: 'SPMB', // Hanya nama repo, bukan URL lengkap
+    repo: 'SPMB',
     branch: 'main',
-    token: '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',
+    token: 'ghp_11AIKF4RY0khxvuG3SkYTQ_8DFAMSeRKifsqx97BUburya6R46YN5IoYkNvxdQLcErFUXQGYX7uQqjAJN9',
     filePath: 'config.json'
 };
 
@@ -444,7 +444,7 @@ async function pushToGitHub() {
             `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}?ref=${githubConfig.branch}`,
             {
                 headers: {
-                    'Authorization': `Bearer ${githubConfig.token}`,
+                    'Authorization': `token ${githubConfig.token}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             }
@@ -462,7 +462,7 @@ async function pushToGitHub() {
             {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${githubConfig.token}`,
+                    'Authorization': `token ${githubConfig.token}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/vnd.github.v3+json'
                 },
@@ -501,7 +501,7 @@ async function pullFromGitHub() {
             `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.filePath}?ref=${githubConfig.branch}`,
             {
                 headers: {
-                    'Authorization': `Bearer ${githubConfig.token}`,
+                    'Authorization': `token ${githubConfig.token}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             }
@@ -546,7 +546,81 @@ async function pullFromGitHub() {
     }
 }
 
-// Add GitHub config modal
+// Upload folder to GitHub
+async function uploadFolderToGitHub() {
+    if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) {
+        alert('❌ Konfigurasi GitHub belum lengkap!');
+        return;
+    }
+
+    try {
+        // Buat folder contents jika belum ada
+        const createFolderResponse = await fetch(
+            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/contents`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubConfig.token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({
+                    message: 'Create contents folder',
+                    content: btoa(''), // Empty file
+                    branch: githubConfig.branch
+                })
+            }
+        );
+
+        // Upload index.html
+        const indexHtmlContent = await fetch('index.html').then(res => res.text());
+        await fetch(
+            `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/contents/index.html`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubConfig.token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({
+                    message: 'Upload index.html',
+                    content: btoa(indexHtmlContent),
+                    branch: githubConfig.branch
+                })
+            }
+        );
+
+        // Upload assets folder
+        const assetsFiles = ['script.js', 'style.css'];
+        for (const file of assetsFiles) {
+            const fileContent = await fetch(`assets/${file}`).then(res => res.text());
+            await fetch(
+                `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/contents/assets/${file}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${githubConfig.token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        message: `Upload ${file}`,
+                        content: btoa(fileContent),
+                        branch: githubConfig.branch
+                    })
+                }
+            );
+        }
+
+        alert('✅ Folder berhasil diupload ke GitHub!');
+    } catch (error) {
+        console.error("GitHub upload error:", error);
+        alert(`❌ Gagal upload folder: ${error.message}`);
+    }
+}
+
+// Add upload folder button to GitHub config
 function showGitHubConfig() {
     const modal = document.getElementById('editModal');
     if (!modal) return;
@@ -583,8 +657,9 @@ function showGitHubConfig() {
         </div>
         <div class="github-actions">
             <button class="btn" onclick="saveGitHubSettings()">💾 Save Settings</button>
-            <button class="btn" onclick="pushToGitHub()">📤 Push to GitHub</button>
-            <button class="btn" onclick="pullFromGitHub()">📥 Pull from GitHub</button>
+            <button class="btn" onclick="pushToGitHub()">📤 Push Config</button>
+            <button class="btn" onclick="pullFromGitHub()">📥 Pull Config</button>
+            <button class="btn" onclick="uploadFolderToGitHub()">📁 Upload Folder</button>
         </div>
     `;
 
